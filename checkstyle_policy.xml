@@ -1,0 +1,510 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+          "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+# Purdue CS Bridge Gradescope Autograder
+# >> checkstyle_policy.xml
+#
+# Description:
+# Checkstyle configuration that enforces
+# common Java coding standards, as well
+# as best practices we like to teach.
+#
+# Last updated:
+#   11/20/2020
+-->
+
+<module name = "Checker">
+
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <module name="FileTabCharacter">
+        <message key="file.containsTab"
+            value="This file contains tab characters used for indentation (this is the first instance). Files should be indented with spaces, not tabs."
+        />
+    </module>
+
+    <module name="TreeWalker">
+
+        <!--
+        **************************
+        * File Structure         *
+        **************************
+        -->
+
+        <module name="OuterTypeFilename">
+            <message key="type.file.mismatch"
+                value="The name of the outer type and the file do not match."
+            />
+        </module>
+
+        <module name="OneTopLevelClass">
+            <message key="one.top.level.class"
+                value="The type ''{0}'' should reside in its own source file."
+            />
+        </module>
+
+        <module name="OuterTypeNumber">
+            <property name="max" value="1"/>
+            <message key="maxOuterTypes"
+                value="There should only be one outer type (e.g., class, interface, enum, etc.) in each file."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END File Structure     *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * Imports                *
+        **************************
+        -->
+
+        <module name="AvoidStarImport">
+            <message key="import.avoidStar"
+                value="Star imports should be avoided, as they import everything in the package and make it difficult for another developer to know what classes and methods you are using."
+            />
+        </module>
+
+        <module name="UnusedImports">
+            <message key="import.unused"
+                value="The import ''{0}'' should be removed, as it is not used in this file."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END Imports            *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * General Practices      *
+        **************************
+        -->
+
+        <module name="MultipleVariableDeclarations">
+            <message key="multiple.variable.declarations.comma"
+                value="To make the code more readable, place each variable in its own declaration on a separate line."
+            />
+            <message key="multiple.variable.declarations"
+                value="To make the code more readable, place each variable in its own declaration on a separate line."
+            />
+        </module>
+        
+        <module name="OneStatementPerLine">
+            <message key="multiple.statements.line"
+                value="To make the code more readable, place each statement on a separate line."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END General Practices  *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * Brace Placement        *
+        **************************
+        -->
+
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
+            <property name="ignoreEnums" value="false"/>
+            <message key="line.previous"
+                value="''{0}'' at column {1} should be at the end of the previous line."
+            />
+            <message key="line.break.after"
+                value="''{0}'' at column {1} should have a line break after it."
+            />
+        </module>
+
+        <module name="RightCurly">
+            <property name="option" value="same"/>
+            <message key="line.alone"
+                value="''{0}'' at column {1} should be alone on this line (i.e., no other code should come after it)."
+            />
+            <message key="line.same"
+                value="''{0}'' at column {1} should be on the same line as the next part of this multi-block statement (e.g., if/else-if/else, do/while or try/catch/finally)."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END Brace Placement    *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * Whitespace             *
+        **************************
+        -->
+
+        <!-- Each property is enumerated here, as the defaults will still be enforced if they are not included. -->
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="4"/>
+            <property name="arrayInitIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="4"/>
+            <property name="forceStrictCondition" value="false"/>
+            <message key="indentation.error"
+                value="This start of this line is {1} spaces from the margin, but it should be at {2} spaces."
+            />
+            <message key="indentation.child.error"
+                value="Child statements in a block should be indented 4 spaces under the parent. The start of this line is {1} spaces from the margin, but it should be at {2} spaces."
+            />
+        </module>
+
+        <module name="NoWhitespaceAfter">
+            <property name="tokens"
+                value="AT, BNOT, LNOT, DEC, INC, UNARY_MINUS, UNARY_PLUS, DOT"/>
+            <property name="allowLineBreaks" value="false"/>
+            <message key="ws.followed"
+                value="''{0}'' is followed by whitespace (i.e., space(s), tab(s), or new line(s)), but it should not be."
+            />
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="COMMA, SEMI, POST_DEC, POST_INC, ELLIPSIS"/>
+            <message key="ws.preceded"
+                value="''{0}'' is preceded by whitespace (i.e., space(s), tab(s), or new line(s)), but it should not be."
+            />
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="DOT"/>
+            <property name="allowLineBreaks" value="true"/>
+            <message key="ws.preceded"
+                value="Dot characters (''{0}'') should not be preceded by whitespace, unless it is a line break."
+            />
+        </module>
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI"/>
+            <message key="ws.notFollowed"
+                value="''{0}'' is not followed by whitespace (i.e., space(s), tab(s), or new line(s)), but it should be."
+            />
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="ignoreEnhancedForColon" value="false"/>
+            <property name="tokens"
+                value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, DO_WHILE, EQUAL, GE, GT, LAMBDA, LAND, LCURLY, LE, LITERAL_ASSERT, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, RCURLY, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN, TYPE_EXTENSION_AND"
+            />
+            <message key="ws.notPreceded"
+                value="''{0}'' is not preceded by whitespace (i.e., space(s), tab(s), or new line(s)), but it should be."
+            />
+            <message key="ws.notFollowed"
+                value="''{0}'' is not followed by whitespace (i.e., space(s), tab(s), or new line(s)), but it should be."
+            />
+        </module>
+
+        <module name="MethodParamPad">
+            <property name="allowLineBreaks" value="false"/>
+            <property name="option" value="nospace"/>
+            <message key="ws.preceded"
+                value="''{0}'' is preceded by whitespace (i.e., space(s), tab(s), or new line(s)), but it not should be."
+            />
+            <message key="line.previous"
+                value="''{0}'' should be on the previous line with the name of the method/constructor."
+            />
+        </module>
+
+        <module name="GenericWhitespace">
+            <message key="ws.followed"
+                value="''{0}'' is followed by whitespace (i.e., space(s), tab(s), or new line(s)). There should not be a space after a &lt; or after a &gt; in a generic parameter list. If there are multiple &gt;''s in the generic parameter list, there should not be spaces between them."
+            />
+            <message key="ws.illegalFollow"
+                value="''{0}'' is followed by an illegal character. There should be a space after the last &gt; in generic parameter list."
+            />
+            <message key="ws.preceded"
+                value="''{0}'' is preceded by whitespace (i.e., space(s), tab(s), or new line(s)). There should not be a space before a &lt; or before a &gt; in a generic parameter list. If there are multiple &gt;''s in a generic parameter list, there should not be spaces between them."
+            />
+        </module>
+
+        <module name="ParenPad">
+            <property name="tokens"
+                value="ANNOTATION, ANNOTATION_FIELD_DEF, CTOR_CALL, CTOR_DEF, DOT, ENUM_CONSTANT_DEF, EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL, METHOD_DEF, QUESTION, RESOURCE_SPECIFICATION, SUPER_CTOR_CALL, LAMBDA"
+            />
+            <message key="ws.preceded"
+                value="''{0}'' is preceded by whitespace (i.e., space(s), tab(s), or new line(s)), but it should not be. Contents inside of parentheses should not be padded."
+            />
+            <message key="ws.followed"
+                value="''{0}'' is followed by whitespace (i.e., space(s), tab(s), or new line(s)), but it should not be. Contents inside of parentheses should not be padded."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END Whitespace         *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * Javadocs               *
+        **************************
+        -->
+
+        <module name="MissingJavadocType">
+            <property name="scope" value="private"/>
+            <message key="javadoc.missing"
+                value="All types (e.g., class, interface, enum, etc.) should have a Javadoc comment describing what the program or type does."
+            />
+        </module>
+
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="private"/>
+            <property name="ignoreMethodNamesRegex" value="^main$"/>
+            <property name="allowedAnnotations" value="Override, Test"/>
+            <message key="javadoc.missing"
+                value="All methods should have a Javadoc comment describing what the method does."
+            />
+        </module>
+
+        <module name="JavadocStyle">
+            <property name="scope" value="private"/>
+            <property name="checkFirstSentence" value="true"/>
+            <property name="checkEmptyJavadoc" value="true"/>
+            <message key="javadoc.noPeriod"
+                value="The first sentence of a Javadoc comment should end with a period."
+            />
+            <message key="javadoc.empty"
+                value="All Javadoc comments should contain a description before the tags that describes what the method, class, etc. does."
+            />
+        </module>
+
+        <module name="JavadocMissingWhitespaceAfterAsterisk">
+            <message key="javadoc.missing.whitespace"
+                value="All lines in a Javadoc comment should contain a single space after the leading asterisk (''*'')"
+            />
+        </module>
+
+        <module name="JavadocContentLocation">
+            <property name="location" value="second_line"/>
+            <message key="javadoc.content.second.line"
+                value="The description for a Javadoc comment should begin on the second line of the comment (after ''/**'')."
+            />
+        </module>
+
+        <module name="InvalidJavadocPosition">
+            <message key="invalid.position"
+                value="Javadoc comments should be placed before the method, class, etc. that it describes. Javadoc comments must also come before any annotations."
+            />
+        </module>
+
+        <module name="AtclauseOrder">
+            <property name="tagOrder" 
+                value="@author, @deprecated, @exception, @param, @return, @see, @serial, @serialData, @serialField, @since, @throws, @version"
+            />
+            <property name="target"
+                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"
+            />
+        </module>
+
+        <module name="JavadocBlockTagLocation">
+            <message key="javadoc.blockTagLocation"
+                value="The Javadoc tag ''{0}'' should be placed at the beginning of a line."
+            />
+        </module>
+
+        <module name="NonEmptyAtclauseDescription">
+            <property name="javadocTokens" 
+                value="PARAM_LITERAL, RETURN_LITERAL, THROWS_LITERAL, EXCEPTION_LITERAL, DEPRECATED_LITERAL"
+            />
+            <message key="non.empty.atclause"
+                value="All Javadoc tags should contain a description."
+            />
+        </module>
+
+        <module name="JavadocType">
+            <property name="scope" value="private"/>
+            <message key="javadoc.unusedTagGeneral"
+                value="This tag does not seem to be needed for this type. Check for spelling mistakes or remove the tag if it is not needed."
+            />
+            <message key="javadoc.unusedTag"
+                value="This {0} tag does not seem to be needed for this type. Check for spelling mistakes or remove the tag if it is not needed."
+            />
+        </module>
+
+        <!-- Public types should contain author and version info -->
+        <module name="JavadocType">
+            <property name="scope" value="public"/>
+            <property name="authorFormat" value="\S"/>
+            <property name="versionFormat" value="\S"/>
+            <message key="type.missingTag"
+                value="The {0} tag for this type is missing from the Javadoc comment."
+            />
+            <message key="type.tagFormat"
+                value="The {0} tag in this Javadoc comment is incomplete. @author tags should be followed by your name and your user name (use multiple @author tags for partner(s), if any). The @version tag should be followed by the date (2013-01-31) or a version number (1.0, 2.0, etc.)."
+            />
+        </module>
+
+        <module name="JavadocMethod">
+            <property name="scope" value="private"/>
+            <property name="allowMissingParamTags" value="false"/>
+            <property name="allowMissingReturnTag" value="false"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>
+            <message key="javadoc.expectedTag"
+                value="Missing {0} tag for ''{1}'' in Javadoc comment."
+            />
+            <message key="javadoc.return.expected"
+                value="Missing @return tag in Javadoc comment."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END Javadocs           *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * Naming Conventions     *
+        **************************
+        -->
+        
+        <module name="TypeName">
+            <message key="name.invalidPattern"
+                value="Types (e.g., classes, interfaces, enums, etc.) should be named in UpperCamelCase where the name starts with a capital letter and the first letter of each subsequent word is also capitalized. Rename the class/interface ''{0}''."
+            />
+        </module>
+
+        <module name="LocalVariableName">
+            <message key="name.invalidPattern"
+                value="Variables should be named in lowerCamelCase where the name starts with a lowercase letter and the first letter of each subsequent word is capitalized. Rename the variable ''{0}''."
+            />
+        </module>
+
+        <module name="LocalFinalVariableName">
+            <message key="name.invalidPattern"
+                value="Variables should be named in lowerCamelCase where the name starts with a lowercase letter and the first letter of each subsequent word is capitalized. Rename the variable ''{0}''."
+            />
+        </module>
+
+        <module name="MemberName">
+            <message key="name.invalidPattern"
+                value="Fields should be named in lowerCamelCase where the name starts with a lowercase letter and the first letter of each subsequent word is capitalized. Rename the field ''{0}''."
+            />
+        </module>
+
+        <module name="MethodName">
+            <property name="allowClassName" value="true"/>
+                <message key="name.invalidPattern"
+                    value="Methods should be named in lowerCamelCase where the name starts with a lowercase letter and the first letter of each subsequent word is capitalized. Rename the method ''{0}''."
+                />
+        </module>
+
+        <module name="ParameterName">
+            <message key="name.invalidPattern"
+                value="Parameters should be named in lowerCamelCase where the name starts with a lowercase letter and the first letter of each subsequent word is capitalized. Rename the parameter ''{0}''."
+            />
+        </module>
+
+        <module name="StaticVariableName">
+            <message key="name.invalidPattern"
+                value="Fields should be named in lowerCamelCase where the name starts with a lowercase letter and the first letter of each subsequent word is capitalized. Rename the field ''{0}''."/>
+        </module>
+
+        <module name="ClassTypeParameterName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern"
+                value="Generic parameters that represent types should be named in UpperCamelCase where the name starts with a capital letter and the first letter of each subsequent word is also capitalized. Rename the parameter ''{0}''."
+            />
+        </module>
+
+        <module name="InterfaceTypeParameterName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern"
+                value="Generic parameters that represent types should be named in UpperCamelCase where the name starts with a capital letter and the first letter of each subsequent word is also capitalized. Rename the parameter ''{0}''."
+            />
+        </module>
+
+        <module name="MethodTypeParameterName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern"
+                value="Generic parameters that represent types should be named in UpperCamelCase where the name starts with a capital letter and the first letter of each subsequent word is also capitalized. Rename the parameter ''{0}''."
+            />
+        </module>
+
+        <module name="LambdaParameterName">
+            <property name="format" value="^[a-z][a-z0-9]*$"/>
+            <message key="name.invalidPattern"
+                value="Lambda parameter names should be all lowercase. Rename the parameter ''{0}''."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END Naming Conventions *
+        **************************
+        -->
+
+
+        <!--
+        **************************
+        * Miscellaneous          *
+        **************************
+        -->
+
+        <module name="TodoComment">
+            <property name="format" value="(?i)(todo)|(fixme)"/>
+            <message key="todo.match"
+                value="This line contains a TODO or FIXME comment, which is an indication that you have not completed this assignment. Make sure you have completed the assignment and removed all TODO or FIXME comments."
+            />
+        </module>
+
+        <module name="ArrayTypeStyle">
+            <message key="array.type.style"
+                value="Use the Java style of declaring arrays with the [] coming after the type name instead of after the variable name. That is, use ''int[] x'' instead of ''int x[]''."
+            />
+        </module>
+
+        <module name="MissingSwitchDefault">
+            <message key="missing.switch.default"
+                value="Switch statements should have a default case."
+            />
+        </module>
+
+        <module name="DefaultComesLast">
+            <message key="default.comes.last"
+                value="To improve readability, the default case should be the last case in a switch statement."
+            />
+        </module>
+
+        <module name="FallThrough">
+            <message key="fall.through"
+                value="The case above will fall through and run the code in this case as well. This may be an indication that a break statement is missing at the end of the previous case. If this is the intended functionality, add a comment on the last line of the previous case with the phrase ''falls through'' to indicate this."
+            />
+        </module>
+
+        <!--
+        **************************
+        * END Miscellaneous      *
+        **************************
+        -->
+
+    </module>
+
+</module>

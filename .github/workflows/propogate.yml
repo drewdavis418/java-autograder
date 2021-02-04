@@ -1,0 +1,174 @@
+name: Update all lab images
+
+on: workflow_dispatch
+
+jobs:
+  lab01:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab01
+          event-type: autograder_update
+
+  lab02:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab02
+          event-type: autograder_update
+
+  lab03:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab03
+          event-type: autograder_update
+
+  lab04:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab04
+          event-type: autograder_update
+
+  lab05:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab05
+          event-type: autograder_update
+
+  lab06:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab06
+          event-type: autograder_update
+
+  lab07:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab07
+          event-type: autograder_update
+
+  lab08:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab08
+          event-type: autograder_update
+
+  lab09:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab09
+          event-type: autograder_update
+
+  lab10:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab10
+          event-type: autograder_update
+
+  lab11:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab11
+          event-type: autograder_update
+
+  lab12:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab12
+          event-type: autograder_update
+
+  lab13:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab13
+          event-type: autograder_update
+
+  lab14:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab14
+          event-type: autograder_update
+
+  lab15:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab15
+          event-type: autograder_update
+
+  lab16:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab16
+          event-type: autograder_update
+
+  lab17:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          repository: purduecsbridge/lab17
+          event-type: autograder_update
