@@ -8,7 +8,7 @@
 #   uploads their code to Gradescope.
 #
 # Last updated:
-#   02/03/2021
+#   03/04/2021
 
 # Declare paths
 autograder="/autograder/source/autograder.jar"
@@ -21,15 +21,21 @@ set -e
 # Open submission
 cd /autograder/submission
 
-# Find submitted files, store in java_files array
-readarray -d '' java_files < <(find -- * -type f -name "*.java" -print0)
+# Find submitted files
+java_files=$( find -- * -type f -name "*.java" )
 
 # Compile student submission
 # If the compile fails for any reason, invoke the show_compile_errors.py script and exit
-javac -encoding UTF-8 -d $submission_output "${java_files[@]}" 2> compile.log \
+# Note: $java_files is being split by word, which is why it is not in quotes. We
+#       stopped using an array of files due to the compiler having issues with flags
+#       and not displaying a useful error message. (disabled SC2086 below)
+# shellcheck disable=SC2086
+javac -encoding UTF-8 -d $submission_output $java_files 2> compile.log \
   || { python3 /autograder/source/show_compile_errors.py < compile.log ; exit 1; }
 
 # Run the autograder
-# Note: $submission_output comes before $autograder,
-#       in case starter code is included in the autograder.jar
-java -cp $submission_output:$autograder TestRunner > $results_file
+# Note: $autograder comes before $submission_output to guard
+#       against class injection. The autograder JAR should not
+#       contain compiled starter code (otherwise the starter code
+#       will take precedence over the submission).
+java -cp $autograder:$submission_output TestRunner > $results_file

@@ -8,7 +8,6 @@
 # Last updated:
 #   07/08/2020
 
-import os
 import json
 import sys
 
