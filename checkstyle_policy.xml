@@ -285,9 +285,7 @@
             <property name="scope" value="private"/>
             <property name="checkFirstSentence" value="true"/>
             <property name="checkEmptyJavadoc" value="true"/>
-            <message key="javadoc.noPeriod"
-                value="The first sentence of a Javadoc comment should end with a period."
-            />
+            <property name="checkFirstSentence" value="false"/>
             <message key="javadoc.empty"
                 value="All Javadoc comments should contain a description before the tags that describes what the method, class, etc. does."
             />
