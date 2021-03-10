@@ -283,7 +283,6 @@
 
         <module name="JavadocStyle">
             <property name="scope" value="private"/>
-            <property name="checkFirstSentence" value="true"/>
             <property name="checkEmptyJavadoc" value="true"/>
             <property name="checkFirstSentence" value="false"/>
             <message key="javadoc.empty"
