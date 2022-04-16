@@ -28,7 +28,7 @@ jobs:
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         run: |
           docker login -u drewdavis418 -p $DOCKER_PASS
-          docker push purduecsbridge/java-autograder:alpine
+          docker push drewdavis418/java-autograder:alpine
 
       - name: Update deployment status
         uses: bobheadxi/deployments@v0.2.0
