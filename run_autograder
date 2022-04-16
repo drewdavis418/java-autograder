@@ -159,7 +159,18 @@ def main():
 
     if not java_files and not kt_files:
         # no input files found..quit
-        results = {"tests": []}
+        results = {
+            "tests": [
+                {
+                    "output": "Missing submission",
+                    "score": 0,
+                    "number": "",
+                    "visibility": "visible",
+                    "max_score": 0,
+                    "name": "Compiler Output",
+                }
+            ]
+        }
         results["output"] = "No java or kotlin file found in your submission."
         write_results(results)
         sys.exit(1)
