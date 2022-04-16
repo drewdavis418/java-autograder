@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-#    branches: [ main ]
+    branches: [ alpine ]
 
 jobs:
   docker:
@@ -16,20 +16,20 @@ jobs:
           step: start
           token: ${{ secrets.GITHUB_TOKEN }}
           env: production
-    
+
       - name: Checkout
         uses: actions/checkout@v1
-          
+
       - name: Build image
-        run: docker build -t purduecsbridge/java-autograder:latest .
-      
+        run: docker build -t drewdavis418/java-autograder:alpine .
+
       - name: Deploy to Docker Hub
         env:
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         run: |
-          docker login -u pucsbridgebot -p $DOCKER_PASS
-          docker push purduecsbridge/java-autograder:latest
-          
+          docker login -u drewdavis418 -p $DOCKER_PASS
+          docker push purduecsbridge/java-autograder:alpine
+
       - name: Update deployment status
         uses: bobheadxi/deployments@v0.2.0
         with:
@@ -37,4 +37,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: https://hub.docker.com/repository/docker/purduecsbridge/java-autograder/tags
+          env_url: https://hub.docker.com/repository/docker/drewdavis418/java-autograder/tags
