@@ -179,7 +179,8 @@ def main():
     kt_results = compile_kt(kt_files) if kt_files else None
 
     if did_err(java_results) or did_err(kt_results):
-        return handle_compile_error(java_results, kt_results)
+        handle_compile_error(java_results, kt_results)
+        return
 
     result = run_autograder()
     # autograder writes json directly
