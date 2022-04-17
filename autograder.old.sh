@@ -26,7 +26,7 @@ set -e
 java_files=$( find -- $submission/* -type f -name "*.java" )
 kotlin_files=$( find -- $submission/* -type f -name "*.kt" )
 
-if [[ -n $java_files && -n $kotlin_files ]]; then
+if [[ -z $java_files && -z $kotlin_files ]]; then
 	# TODO: Show error in results.json
 	exit 1
 fi
