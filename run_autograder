@@ -12,7 +12,6 @@ Last updated:
   04/16/2022
 """
 
-
 from pathlib import Path
 import json
 import sys
@@ -35,19 +34,14 @@ def filter_files(files: Generator[Path, None, None]) -> List[Path]:
             ret.append(file)
     return ret
 
-
-# constants
+# Constants
 autograder = Path("/autograder/source/autograder.jar")
 submission = Path("/autograder/submission/")
 submission_output = Path("/autograder/compiled_submission")
 results_file = Path("/autograder/results/results.json")
 
-# java_compilation_log = Path("/autograder/javac.log")
-# kt_compilation_log = Path("/autograder/kotlinc.log")
-
-
 def find_files() -> Tuple[List[Path], List[Path]]:
-    """find all the java and kt files in the submission directory
+    """Find all the java and kt files in the submission directory
 
     Returns:
         Tuple[List[Path], List[Path]]: Tuple of java and kt file list
@@ -58,7 +52,7 @@ def find_files() -> Tuple[List[Path], List[Path]]:
 
 
 def write_results(result_dict: dict):
-    """write the results dictionary to the output file
+    """Write the results dictionary to the output file
 
     Args:
         js (dict): the result dict
@@ -67,14 +61,14 @@ def write_results(result_dict: dict):
 
 
 def _compile(source_files: List[Path], args: List[str]):
-    """generic compile"""
+    """Generic compile"""
     src = [str(x) for x in source_files]
     result = run([*args, *src], capture_output=True, check=False)
     return result
 
 
 def compile_java(source_files: List[Path]):
-    """compile the java source files and capture output
+    """Compile the java source files and capture output
 
     Args:
         source_files (List[Path]): Source files
@@ -84,7 +78,7 @@ def compile_java(source_files: List[Path]):
 
 
 def compile_kt(source_files: List[Path]):
-    """compile the kt source files and capture output
+    """Compile the kt source files and capture output
 
     Args:
         source_files (List[Path]): Source files
@@ -94,20 +88,20 @@ def compile_kt(source_files: List[Path]):
 
 
 def did_err(completed_process: CompletedProcess):
-    """check if the process was executed and if it has errors
+    """Check if the process was executed and if it has errors
 
     Args:
-        completed_process (CompletedProcess[bytes]): the process to check
+        completed_process (CompletedProcess): the process to check
     """
     if completed_process is None:
-        # the process was never run
+        # The process was never run
         return False
-    # previous scripts would check by the size of the error log file
+    # Previous scripts would check by the size of the error log file
     return bool(completed_process.stderr)
 
 
 def run_autograder():
-    """run the autograder on the submission dir"""
+    """Run the autograder on the submission dir"""
     # Note: $autograder comes before $submission_output to guard
     #       against class injection. The autograder JAR should not
     #       contain compiled starter code (otherwise the starter code
@@ -123,21 +117,20 @@ def run_autograder():
 def handle_compile_error(
     java_result:CompletedProcess, kt_result:CompletedProcess
 ) -> None:
-    """write out the compilation errors and exit
+    """Write out the compilation errors and exit
 
     Args:
-        java_result (CompletedProcess[bytes]): maybe java errors?
-        kt_result (CompletedProcess[bytes]): maybe kt errors?
+        java_result (CompletedProcess): Java compilation errors
+        kt_result (CompletedProcess): Kotlin compilation errors
     """
     results = {"tests": []}
-    # one of our files failed to compile.. show errors and quit
+    # one Of our files failed to compile.. show errors and quit
     error = ""
     if java_result:
-        error += java_result.stderr.decode()
-        error += "\n"
+        error += java_result.stderr.decode() + "\n"
     if kt_result:
-        error += kt_result.stderr.decode()
-        error += "\n"
+        error += kt_result.stderr.decode() + "\n"
+
     results["output"] = "Unable to compile submission"
     results["tests"].append(
         {
@@ -158,7 +151,7 @@ def main():
     java_files, kt_files = find_files()
 
     if not java_files and not kt_files:
-        # no input files found..quit
+        # No input files found...quit
         results = {
             "tests": [
                 {
@@ -178,13 +171,15 @@ def main():
     java_results = compile_java(java_files) if java_files else None
     kt_results = compile_kt(kt_files) if kt_files else None
 
+    # Handle errors during compiling
     if did_err(java_results) or did_err(kt_results):
         handle_compile_error(java_results, kt_results)
         return
 
     result = run_autograder()
-    # autograder writes json directly
+    # Autograder writes json directly
     # so no need to parse it again
+    
     results_file.write_bytes(result.stdout)
     return
 
