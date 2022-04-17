@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
 """
 Purdue CS Bridge Gradescope Autograder
@@ -41,7 +41,7 @@ submission_output = Path("/autograder/compiled_submission")
 results_file = Path("/autograder/results/results.json")
 
 def find_files() -> Tuple[List[Path], List[Path]]:
-    """Find all the java and kt files in the submission directory
+    """Find all the Java and Kotlin files in the submission directory
 
     Returns:
         Tuple[List[Path], List[Path]]: Tuple of java and kt file list
@@ -101,7 +101,7 @@ def did_err(completed_process: CompletedProcess):
 
 
 def run_autograder():
-    """Run the autograder on the submission dir"""
+    """Runs the autograder with the student submission"""
     # Note: $autograder comes before $submission_output to guard
     #       against class injection. The autograder JAR should not
     #       contain compiled starter code (otherwise the starter code
@@ -124,7 +124,7 @@ def handle_compile_error(
         kt_result (CompletedProcess): Kotlin compilation errors
     """
     results = {"tests": []}
-    # one Of our files failed to compile.. show errors and quit
+    # Some file(s) failed to compile... show errors and quit
     error = ""
     if java_result:
         error += java_result.stderr.decode() + "\n"
@@ -155,7 +155,7 @@ def main():
         results = {
             "tests": [
                 {
-                    "output": "Missing submission",
+                    "output": "No Java or Kotlin files were submitted.",
                     "score": 0,
                     "number": "",
                     "visibility": "visible",
