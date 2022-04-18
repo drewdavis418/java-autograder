@@ -11,11 +11,10 @@ Description:
 Last updated:
   04/17/2022
 """
-
 from pathlib import Path
 import json
 import sys
-from typing import List
+from typing import Dict, List, Union, Literal
 from subprocess import run
 
 
@@ -78,10 +77,20 @@ def run_autograder():
     return result
 
 
+def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], Path]:
+    """Find the java and kotlin submission files in the submission directory"""
+
+    java_files = [f for f in submission.rglob("*.java") if f.is_file()]
+    kt_files = [f for f in submission.rglob("*.kt") if f.is_file()]
+    return {"java": java_files, "kotlin": kt_files}
+
+
 def main():
-    # pylint: disable=missing-docstring
-    java_files = [f for f in submission.glob("*.java") if f.is_file()]
-    kt_files = [f for f in submission.glob("*.kt") if f.is_file()]
+    """Grader entry point"""
+    files = find_source_files()
+
+    java_files = files["java"]
+    kt_files = files["kotlin"]
 
     if not java_files and not kt_files:
         results = {
