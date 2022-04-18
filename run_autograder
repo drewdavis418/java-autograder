@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 """
 Purdue CS Bridge Gradescope Autograder
@@ -9,103 +9,67 @@ Description:
   uploads their code to Gradescope.
 
 Last updated:
-  04/16/2022
+  04/17/2022
 """
 
 from pathlib import Path
 import json
 import sys
-from typing import Generator, List, Tuple
-from subprocess import CompletedProcess, run
+from typing import List
+from subprocess import run
 
 
-def filter_files(files: Generator[Path, None, None]) -> List[Path]:
-    """Filter a glob and return files only
-
-    Args:
-        f (Generator[Path, None, None]): path.glob object
-
-    Returns:
-        List[Path]: list of files
-    """
-    ret = []
-    for file in files:
-        if file.is_file():
-            ret.append(file)
-    return ret
-
-# Constants
 autograder = Path("/autograder/source/autograder.jar")
 submission = Path("/autograder/submission/")
-submission_output = Path("/autograder/compiled_submission")
+submission_output = Path("/autograder/compiled_submission/")
 results_file = Path("/autograder/results/results.json")
-
-def find_files() -> Tuple[List[Path], List[Path]]:
-    """Find all the Java and Kotlin files in the submission directory
-
-    Returns:
-        Tuple[List[Path], List[Path]]: Tuple of java and kt file list
-    """
-    java_files = filter_files(submission.glob("*.java"))
-    kotlin_files = filter_files(submission.glob("*.kt"))
-    return java_files, kotlin_files
-
-
-def write_results(result_dict: dict):
-    """Write the results dictionary to the output file
-
-    Args:
-        js (dict): the result dict
-    """
-    results_file.write_text(json.dumps(result_dict), encoding="utf-8")
 
 
 def _compile(source_files: List[Path], args: List[str]):
     """Generic compile"""
+    if not source_files:
+        return None
     src = [str(x) for x in source_files]
     result = run([*args, *src], capture_output=True, check=False)
+    if result.returncode != 0:
+        results = {
+            "output": "Unable to compile submission",
+            "tests": [
+                {
+                    "output": result.stderr.decode(),
+                    "score": 0,
+                    "number": "",
+                    "visibility": "visible",
+                    "max_score": 0,
+                    "name": "Compiler Output",
+                }
+            ],
+        }
+        results_file.write_text(json.dumps(results), encoding="utf-8")
+        sys.exit(1)
     return result
 
 
 def compile_java(source_files: List[Path]):
-    """Compile the java source files and capture output
-
-    Args:
-        source_files (List[Path]): Source files
-    """
+    """Compile the java source files and capture output"""
     args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
     return _compile(source_files, args)
 
 
 def compile_kt(source_files: List[Path]):
-    """Compile the kt source files and capture output
-
-    Args:
-        source_files (List[Path]): Source files
-    """
+    """Compile the kt source files and capture output"""
     args = ["kotlinc", "-d", str(submission_output)]
     return _compile(source_files, args)
 
 
-def did_err(completed_process: CompletedProcess):
-    """Check if the process was executed and if it has errors
-
-    Args:
-        completed_process (CompletedProcess): the process to check
-    """
-    if completed_process is None:
-        # The process was never run
-        return False
-    # Previous scripts would check by the size of the error log file
-    return bool(completed_process.stderr)
-
-
 def run_autograder():
-    """Runs the autograder with the student submission"""
-    # Note: $autograder comes before $submission_output to guard
-    #       against class injection. The autograder JAR should not
-    #       contain compiled starter code (otherwise the starter code
-    #       will take precedence over the submission).
+    """Runs the autograder with the student submission
+    Note: autograder comes before submission_output to guard
+      against class injection. The autograder JAR should not
+      contain compiled starter code (otherwise the starter code
+      will take precedence over the submission).
+    """
+
     result = run(
         ["java", "-cp", f"{autograder}:{submission_output}", "TestRunner"],
         check=False,
@@ -114,45 +78,14 @@ def run_autograder():
     return result
 
 
-def handle_compile_error(
-    java_result:CompletedProcess, kt_result:CompletedProcess
-) -> None:
-    """Write out the compilation errors and exit
-
-    Args:
-        java_result (CompletedProcess): Java compilation errors
-        kt_result (CompletedProcess): Kotlin compilation errors
-    """
-    results = {"tests": []}
-    # Some file(s) failed to compile... show errors and quit
-    error = ""
-    if java_result:
-        error += java_result.stderr.decode() + "\n"
-    if kt_result:
-        error += kt_result.stderr.decode() + "\n"
-
-    results["output"] = "Unable to compile submission"
-    results["tests"].append(
-        {
-            "output": error,
-            "score": 0,
-            "number": "",
-            "visibility": "visible",
-            "max_score": 0,
-            "name": "Compiler Output",
-        }
-    )
-    write_results(results)
-    sys.exit(1)
-
-
 def main():
-    """entry point"""
-    java_files, kt_files = find_files()
+    # pylint: disable=missing-docstring
+    java_files = [f for f in submission.glob("*.java") if f.is_file()]
+    kt_files = [f for f in submission.glob("*.kt") if f.is_file()]
 
     if not java_files and not kt_files:
-        # No input files found...quit
         results = {
+            "output": "No java or kotlin file found in your submission.",
             "tests": [
                 {
                     "output": "No Java or Kotlin files were submitted.",
@@ -162,26 +95,16 @@ def main():
                     "max_score": 0,
                     "name": "Compiler Output",
                 }
-            ]
+            ],
         }
-        results["output"] = "No java or kotlin file found in your submission."
-        write_results(results)
+        results_file.write_text(json.dumps(results), encoding="utf-8")
         sys.exit(1)
 
-    java_results = compile_java(java_files) if java_files else None
-    kt_results = compile_kt(kt_files) if kt_files else None
-
-    # Handle errors during compiling
-    if did_err(java_results) or did_err(kt_results):
-        handle_compile_error(java_results, kt_results)
-        return
+    compile_java(java_files)
+    compile_kt(kt_files)
 
     result = run_autograder()
-    # Autograder writes json directly
-    # so no need to parse it again
-    
     results_file.write_bytes(result.stdout)
-    return
 
 
 if __name__ == "__main__":
