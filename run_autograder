@@ -94,7 +94,7 @@ def main():
 
     if not java_files and not kt_files:
         results = {
-            "output": "No java or kotlin file found in your submission.",
+            "output": "Unable to compile submission",
             "tests": [
                 {
                     "output": "No Java or Kotlin files were submitted.",
