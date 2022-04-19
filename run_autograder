@@ -9,12 +9,12 @@ Description:
   uploads their code to Gradescope.
 
 Last updated:
-  04/17/2022
+  04/19/2022
 """
 from pathlib import Path
 import json
 import sys
-from typing import Dict, List, Tuple, Union, Literal
+from typing import Dict, List, Union, Literal
 from subprocess import run
 
 
@@ -24,34 +24,27 @@ submission_output = Path("/autograder/compiled_submission/")
 results_file = Path("/autograder/results/results.json")
 
 
-def _compile(source_files: List[Path], args: List[str]) -> Tuple[int, bytes]:
-    """Generic compile"""
-    if not source_files:
-        return (0, b"")
-    src = [str(x) for x in source_files]
-    result = run([*args, *src], capture_output=True, check=False)
-    if result.returncode != 0:
-        return (result.returncode, result.stderr)
-    return (result.returncode, result.stdout)
-
-
 def _compile_java(source_files: List[Path]):
     """Compile the java source files and capture output"""
+    src = [str(x) for x in source_files]
     args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
-    return _compile(source_files, args)
+    result = run([*args, *src], capture_output=True, check=False)
+    return result.stderr if result.returncode != 0 else None
 
 
 def _compile_kt(source_files: List[Path]):
     """Compile the kt source files and capture output"""
+    src = [str(x) for x in source_files]
     args = ["kotlinc", "-d", str(submission_output)]
-    return _compile(source_files, args)
+    result = run([*args, *src], capture_output=True, check=False)
+    return result.stderr if result.returncode != 0 else None
 
 
 def compile_files(
     source: Dict[Union[Literal["java"], Literal["kotlin"]], Path]
 ) -> None:
     """
-    Compile the java and kotline files, handle any exception,
+    Compile the Java and Kotlin files, handle any exception,
     returns None on success, exits with (1) on failure
     """
     err_result = None
@@ -70,13 +63,13 @@ def compile_files(
             ],
         }
     else:
-        (java_ret, java_result) = _compile_java(source["java"])
-        (kt_ret, kt_result) = _compile_kt(source["kotlin"])
+        java_result = _compile_java(source["java"])
+        kt_result = _compile_kt(source["kotlin"])
         errors = ""
-        if java_ret != 0:
-            errors += f"{java_result.decode()}\n"
-        if kt_ret != 0:
-            errors += f"{kt_result.decode()}\n"
+        if java_result is not None:
+            errors += f"{java_result.decode()}"
+        if kt_result is not None:
+            errors += f"{kt_result.decode()}"
         if errors:
             err_result = {
                 "output": "Unable to compile submission",
