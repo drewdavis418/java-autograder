@@ -14,7 +14,7 @@ Last updated:
 from pathlib import Path
 import json
 import sys
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Tuple, Union, Literal
 from subprocess import run
 
 
@@ -24,18 +24,43 @@ submission_output = Path("/autograder/compiled_submission/")
 results_file = Path("/autograder/results/results.json")
 
 
-def _compile(source_files: List[Path], args: List[str]):
+def _compile(source_files: List[Path], args: List[str]) -> Tuple[int, bytes]:
     """Generic compile"""
     if not source_files:
-        return None
+        return (0, b"")
     src = [str(x) for x in source_files]
     result = run([*args, *src], capture_output=True, check=False)
     if result.returncode != 0:
-        results = {
+        return (result.returncode, result.stderr)
+    return (result.returncode, result.stdout)
+
+
+def _compile_java(source_files: List[Path]):
+    """Compile the java source files and capture output"""
+    args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
+    return _compile(source_files, args)
+
+
+def _compile_kt(source_files: List[Path]):
+    """Compile the kt source files and capture output"""
+    args = ["kotlinc", "-d", str(submission_output)]
+    return _compile(source_files, args)
+
+
+def compile_files(
+    source: Dict[Union[Literal["java"], Literal["kotlin"]], Path]
+) -> None:
+    """
+    Compile the java and kotline files, handle any exception,
+    returns None on success, exits with (1) on failure
+    """
+    err_result = None
+    if not source["java"] and not source["kotlin"]:
+        err_result = {
             "output": "Unable to compile submission",
             "tests": [
                 {
-                    "output": result.stderr.decode(),
+                    "output": "No Java or Kotlin files were submitted.",
                     "score": 0,
                     "number": "",
                     "visibility": "visible",
@@ -44,21 +69,31 @@ def _compile(source_files: List[Path], args: List[str]):
                 }
             ],
         }
-        results_file.write_text(json.dumps(results), encoding="utf-8")
+    else:
+        (java_ret, java_result) = _compile_java(source["java"])
+        (kt_ret, kt_result) = _compile_kt(source["kotlin"])
+        errors = ""
+        if java_ret != 0:
+            errors += f"{java_result.decode()}\n"
+        if kt_ret != 0:
+            errors += f"{kt_result.decode()}\n"
+        if errors:
+            err_result = {
+                "output": "Unable to compile submission",
+                "tests": [
+                    {
+                        "output": errors,
+                        "score": 0,
+                        "number": "",
+                        "visibility": "visible",
+                        "max_score": 0,
+                        "name": "Compiler Output",
+                    }
+                ],
+            }
+    if err_result is not None:
+        results_file.write_text(json.dumps(err_result), encoding="utf-8")
         sys.exit(1)
-    return result
-
-
-def compile_java(source_files: List[Path]):
-    """Compile the java source files and capture output"""
-    args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
-    return _compile(source_files, args)
-
-
-def compile_kt(source_files: List[Path]):
-    """Compile the kt source files and capture output"""
-    args = ["kotlinc", "-d", str(submission_output)]
-    return _compile(source_files, args)
 
 
 def run_autograder():
@@ -88,30 +123,7 @@ def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], Path]
 def main():
     """Grader entry point"""
     files = find_source_files()
-
-    java_files = files["java"]
-    kt_files = files["kotlin"]
-
-    if not java_files and not kt_files:
-        results = {
-            "output": "Unable to compile submission",
-            "tests": [
-                {
-                    "output": "No Java or Kotlin files were submitted.",
-                    "score": 0,
-                    "number": "",
-                    "visibility": "visible",
-                    "max_score": 0,
-                    "name": "Compiler Output",
-                }
-            ],
-        }
-        results_file.write_text(json.dumps(results), encoding="utf-8")
-        sys.exit(1)
-
-    compile_java(java_files)
-    compile_kt(kt_files)
-
+    compile_files(files)
     result = run_autograder()
     results_file.write_bytes(result.stdout)
 
