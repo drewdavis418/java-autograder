@@ -14,7 +14,7 @@ Last updated:
 from pathlib import Path
 import json
 import sys
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Union, Literal, Optional
 from subprocess import run
 
 
@@ -24,40 +24,52 @@ submission_output = Path("/autograder/compiled_submission/")
 results_file = Path("/autograder/results/results.json")
 
 
-def _compile_java(source_files: List[Path]):
-    """Compile the Java source files and capture output"""
+def _javac(source_files: List[Path]) -> Optional[str]:
+    """Compiles the Java source files and returns any errors"""
     if not source_files:
         return None
     src = [str(x) for x in source_files]
     args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
     result = run([*args, *src], capture_output=True, check=False)
-    return result.stderr if result.returncode != 0 else None
+    return result.stderr.decode() if result.returncode != 0 else None
 
 
-def _compile_kt(source_files: List[Path]):
-    """Compile the Kotlin source files and capture output"""
+def _kotlinc(source_files: List[Path]) -> Optional[str]:
+    """Compiles the Kotlin source files and returns any errors"""
     if not source_files:
         return None
     src = [str(x) for x in source_files]
     args = ["kotlinc", "-d", str(submission_output)]
     result = run([*args, *src], capture_output=True, check=False)
-    return result.stderr if result.returncode != 0 else None
+    return result.stderr.decode() if result.returncode != 0 else None
 
 
 def compile_files(
     source: Dict[Union[Literal["java"], Literal["kotlin"]], List[Path]]
 ) -> None:
     """
-    Compile the Java and Kotlin files, handle any exception,
-    returns None on success, exits with (1) on failure
+    Compiles the Java and Kotlin files and handles any compiler errors.
+    Returns None on success, or exits with (1) on failure
     """
-    err_result = None
+    error = None
     if not source["java"] and not source["kotlin"]:
+        error = "No Java or Kotlin files were submitted."
+    else:
+        javac_errors = _javac(source["java"])
+        kotlinc_errors = _kotlinc(source["kotlin"])
+        compiler_errors = ""
+        if javac_errors is not None:
+            compiler_errors += javac_errors
+        if kotlinc_errors is not None:
+            compiler_errors += kotlinc_errors
+        if compiler_errors:
+            error = compiler_errors
+    if error is not None:
         err_result = {
             "output": "Unable to compile submission",
             "tests": [
                 {
-                    "output": "No Java or Kotlin files were submitted.",
+                    "output": error,
                     "score": 0,
                     "number": "",
                     "visibility": "visible",
@@ -66,29 +78,6 @@ def compile_files(
                 }
             ],
         }
-    else:
-        java_result = _compile_java(source["java"])
-        kt_result = _compile_kt(source["kotlin"])
-        errors = ""
-        if java_result is not None:
-            errors += f"{java_result.decode()}"
-        if kt_result is not None:
-            errors += f"{kt_result.decode()}"
-        if errors:
-            err_result = {
-                "output": "Unable to compile submission",
-                "tests": [
-                    {
-                        "output": errors,
-                        "score": 0,
-                        "number": "",
-                        "visibility": "visible",
-                        "max_score": 0,
-                        "name": "Compiler Output",
-                    }
-                ],
-            }
-    if err_result is not None:
         results_file.write_text(json.dumps(err_result), encoding="utf-8")
         sys.exit(1)
 
@@ -107,11 +96,12 @@ def run_autograder():
     )
     if result.stderr:
         sys.stderr.write(result.stderr.decode())
+        sys.exit(1)
     results_file.write_bytes(result.stdout)
 
 
 def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], List[Path]]:
-    """Find the Java and Kotlin submission files in the submission directory"""
+    """Finds the Java and Kotlin submission files in the submission directory"""
     java_files = [f for f in submission.rglob("*.java") if f.is_file()]
     kt_files = [f for f in submission.rglob("*.kt") if f.is_file()]
     return {"java": java_files, "kotlin": kt_files}
