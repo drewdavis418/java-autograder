@@ -9,7 +9,7 @@ Description:
   uploads their code to Gradescope.
 
 Last updated:
-  04/19/2022
+  04/20/2022
 """
 from pathlib import Path
 import json
@@ -25,7 +25,7 @@ results_file = Path("/autograder/results/results.json")
 
 
 def _compile_java(source_files: List[Path]):
-    """Compile the java source files and capture output"""
+    """Compile the Java source files and capture output"""
     if not source_files:
         return None
     src = [str(x) for x in source_files]
@@ -35,7 +35,7 @@ def _compile_java(source_files: List[Path]):
 
 
 def _compile_kt(source_files: List[Path]):
-    """Compile the kt source files and capture output"""
+    """Compile the Kotlin source files and capture output"""
     if not source_files:
         return None
     src = [str(x) for x in source_files]
@@ -45,7 +45,7 @@ def _compile_kt(source_files: List[Path]):
 
 
 def compile_files(
-    source: Dict[Union[Literal["java"], Literal["kotlin"]], Path]
+    source: Dict[Union[Literal["java"], Literal["kotlin"]], List[Path]]
 ) -> None:
     """
     Compile the Java and Kotlin files, handle any exception,
@@ -100,18 +100,18 @@ def run_autograder():
       contain compiled starter code (otherwise the starter code
       will take precedence over the submission).
     """
-
     result = run(
         ["java", "-cp", f"{autograder}:{submission_output}", "TestRunner"],
         check=False,
         capture_output=True,
     )
-    return result
+    if result.stderr:
+        sys.stderr.write(result.stderr.decode())
+    results_file.write_bytes(result.stdout)
 
 
-def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], Path]:
-    """Find the java and kotlin submission files in the submission directory"""
-
+def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], List[Path]]:
+    """Find the Java and Kotlin submission files in the submission directory"""
     java_files = [f for f in submission.rglob("*.java") if f.is_file()]
     kt_files = [f for f in submission.rglob("*.kt") if f.is_file()]
     return {"java": java_files, "kotlin": kt_files}
@@ -121,8 +121,7 @@ def main():
     """Grader entry point"""
     files = find_source_files()
     compile_files(files)
-    result = run_autograder()
-    results_file.write_bytes(result.stdout)
+    run_autograder()
 
 
 if __name__ == "__main__":
