@@ -26,6 +26,8 @@ results_file = Path("/autograder/results/results.json")
 
 def _compile_java(source_files: List[Path]):
     """Compile the java source files and capture output"""
+    if not source_files:
+        return None
     src = [str(x) for x in source_files]
     args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
     result = run([*args, *src], capture_output=True, check=False)
@@ -34,6 +36,8 @@ def _compile_java(source_files: List[Path]):
 
 def _compile_kt(source_files: List[Path]):
     """Compile the kt source files and capture output"""
+    if not source_files:
+        return None
     src = [str(x) for x in source_files]
     args = ["kotlinc", "-d", str(submission_output)]
     result = run([*args, *src], capture_output=True, check=False)
