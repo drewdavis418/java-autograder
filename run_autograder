@@ -1,55 +1,125 @@
-#! /usr/bin/env bash
+#!/usr/bin/env python3
 
-# Purdue CS Bridge Gradescope Autograder
-# >> run_autograder
-#
-# Description:
-#   This script runs when a student
-#   uploads their code to Gradescope.
-#
-# Last updated:
-#   04/16/2022
+"""
+Purdue CS Bridge Gradescope Autograder
+>> run_autograder
 
-# Declare paths
-autograder="/autograder/source/autograder.jar"
-submission="/autograder/submission"
-submission_output="/autograder/compiled_submission"
-results_file="/autograder/results/results.json"
+Description:
+  This script runs when a student
+  uploads their code to Gradescope.
 
-# Set script to exit if error occurs
-set -e
+Last updated:
+  04/19/2022
+"""
+from pathlib import Path
+import json
+import sys
+from typing import Dict, List, Union, Literal
+from subprocess import run
 
-# Open submission
-#cd /autograder/submission
 
-# Find submitted files
-java_files=$( find -- $submission/* -type f -name "*.java" )
-kotlin_files=$( find -- $submission/* -type f -name "*.kt" )
+autograder = Path("/autograder/source/autograder.jar")
+submission = Path("/autograder/submission/")
+submission_output = Path("/autograder/compiled_submission/")
+results_file = Path("/autograder/results/results.json")
 
-if [[ -n $java_files && -n $kotlin_files ]]; then
-	# TODO: Show error in results.json
-	exit 1
-fi
 
-# Compile student submission
-# If the compile fails for any reason, invoke the show_compile_errors.py script and exit
-# Note: $java_files is being split by word, which is why it is not in quotes. We
-#       stopped using an array of files due to the compiler having issues with flags
-#       and not displaying a useful error message. (disabled SC2086 below)
-# shellcheck disable=SC2086
-[[ -n $java_files ]] && javac -encoding UTF-8 -d $submission_output $java_files 2> /autograder/javac.log
-[[ -n $kotlin_files ]] && kotlinc -d $submission_output $kotlin_files 2> /autograder/kotlinc.log
+def _compile_java(source_files: List[Path]):
+    """Compile the java source files and capture output"""
+    src = [str(x) for x in source_files]
+    args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
+    result = run([*args, *src], capture_output=True, check=False)
+    return result.stderr if result.returncode != 0 else None
 
-# Consolidate compiler errors
-[[ -f /autograder/javac.log ]] && cat /autograder/javac.log >> /autograder/compiler.log
-[[ -f /autograder/kotlinc.log ]] && cat /autograder/kotlinc.log >> /autograder/compiler.log
 
-# Show compiler errors
-[[ -s /autograder/compiler.log ]] && { python3 /autograder/source/show_compile_errors.py; exit 1; }
+def _compile_kt(source_files: List[Path]):
+    """Compile the kt source files and capture output"""
+    src = [str(x) for x in source_files]
+    args = ["kotlinc", "-d", str(submission_output)]
+    result = run([*args, *src], capture_output=True, check=False)
+    return result.stderr if result.returncode != 0 else None
 
-# Run the autograder
-# Note: $autograder comes before $submission_output to guard
-#       against class injection. The autograder JAR should not
-#       contain compiled starter code (otherwise the starter code
-#       will take precedence over the submission).
-java -cp $autograder:$submission_output TestRunner > $results_file
+
+def compile_files(
+    source: Dict[Union[Literal["java"], Literal["kotlin"]], Path]
+) -> None:
+    """
+    Compile the Java and Kotlin files, handle any exception,
+    returns None on success, exits with (1) on failure
+    """
+    err_result = None
+    if not source["java"] and not source["kotlin"]:
+        err_result = {
+            "output": "Unable to compile submission",
+            "tests": [
+                {
+                    "output": "No Java or Kotlin files were submitted.",
+                    "score": 0,
+                    "number": "",
+                    "visibility": "visible",
+                    "max_score": 0,
+                    "name": "Compiler Output",
+                }
+            ],
+        }
+    else:
+        java_result = _compile_java(source["java"])
+        kt_result = _compile_kt(source["kotlin"])
+        errors = ""
+        if java_result is not None:
+            errors += f"{java_result.decode()}"
+        if kt_result is not None:
+            errors += f"{kt_result.decode()}"
+        if errors:
+            err_result = {
+                "output": "Unable to compile submission",
+                "tests": [
+                    {
+                        "output": errors,
+                        "score": 0,
+                        "number": "",
+                        "visibility": "visible",
+                        "max_score": 0,
+                        "name": "Compiler Output",
+                    }
+                ],
+            }
+    if err_result is not None:
+        results_file.write_text(json.dumps(err_result), encoding="utf-8")
+        sys.exit(1)
+
+
+def run_autograder():
+    """Runs the autograder with the student submission
+    Note: autograder comes before submission_output to guard
+      against class injection. The autograder JAR should not
+      contain compiled starter code (otherwise the starter code
+      will take precedence over the submission).
+    """
+
+    result = run(
+        ["java", "-cp", f"{autograder}:{submission_output}", "TestRunner"],
+        check=False,
+        capture_output=True,
+    )
+    return result
+
+
+def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], Path]:
+    """Find the java and kotlin submission files in the submission directory"""
+
+    java_files = [f for f in submission.rglob("*.java") if f.is_file()]
+    kt_files = [f for f in submission.rglob("*.kt") if f.is_file()]
+    return {"java": java_files, "kotlin": kt_files}
+
+
+def main():
+    """Grader entry point"""
+    files = find_source_files()
+    compile_files(files)
+    result = run_autograder()
+    results_file.write_bytes(result.stdout)
+
+
+if __name__ == "__main__":
+    main()
