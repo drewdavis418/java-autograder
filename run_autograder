@@ -9,7 +9,7 @@ Description:
   uploads their code to Gradescope.
 
 Last updated:
-  04/20/2022
+  05/30/2022
 """
 from pathlib import Path
 import json
@@ -17,29 +17,35 @@ import sys
 from typing import Dict, List, Union, Literal, Optional
 from subprocess import run
 
+kotlin_root = Path("/usr/lib/kotlin/lib")
+kotlin_libraries = ':'.join([
+    f"{kotlin_root}/kotlin-stdlib.jar",
+    f"{kotlin_root}/kotlin-reflect.jar"
+])
+
 
 autograder = Path("/autograder/source/autograder.jar")
 submission = Path("/autograder/submission/")
-submission_output = Path("/autograder/compiled_submission/")
+compiled_submission = Path("/autograder/compiled_submission/")
 results_file = Path("/autograder/results/results.json")
 
 
 def _javac(source_files: List[Path]) -> Optional[str]:
-    """Compiles the Java source files and returns any errors"""
+    """Compiles the Java source files and returns any errors."""
     if not source_files:
         return None
     src = [str(x) for x in source_files]
-    args = ["javac", "-encoding", "UTF-8", "-d", str(submission_output)]
+    args = ["javac", "-encoding", "UTF-8", "-d", str(compiled_submission)]
     result = run([*args, *src], capture_output=True, check=False)
     return result.stderr.decode() if result.returncode != 0 else None
 
 
 def _kotlinc(source_files: List[Path]) -> Optional[str]:
-    """Compiles the Kotlin source files and returns any errors"""
+    """Compiles the Kotlin source files and returns any errors."""
     if not source_files:
         return None
     src = [str(x) for x in source_files]
-    args = ["kotlinc", "-d", str(submission_output)]
+    args = ["kotlinc", "-d", str(compiled_submission)]
     result = run([*args, *src], capture_output=True, check=False)
     return result.stderr.decode() if result.returncode != 0 else None
 
@@ -49,7 +55,7 @@ def compile_files(
 ) -> None:
     """
     Compiles the Java and Kotlin files and handles any compiler errors.
-    Returns None on success, or exits with (1) on failure
+    Returns None on success, or exits with (1) on failure.
     """
     error = None
     if not source["java"] and not source["kotlin"]:
@@ -83,14 +89,13 @@ def compile_files(
 
 
 def run_autograder():
-    """Runs the autograder with the student submission
-    Note: autograder comes before submission_output to guard
-      against class injection. The autograder JAR should not
-      contain compiled starter code (otherwise the starter code
-      will take precedence over the submission).
+    """Runs the autograder with the student submission.
+    Note: autograder comes before compiled_submission to guard against class injection.
+    The autograder JAR should not contain compiled starter code
+    (otherwise the starter code will take precedence over the submission).
     """
     result = run(
-        ["java", "-cp", f"{autograder}:{submission_output}", "TestRunner"],
+        ["java", "-cp", f"{autograder}:{compiled_submission}:{kotlin_libraries}", "TestRunner"],
         check=False,
         capture_output=True,
     )
@@ -101,14 +106,14 @@ def run_autograder():
 
 
 def find_source_files() -> Dict[Union[Literal["java"], Literal["kotlin"]], List[Path]]:
-    """Finds the Java and Kotlin submission files in the submission directory"""
+    """Finds the Java and Kotlin submission files in the submission directory."""
     java_files = [f for f in submission.rglob("*.java") if f.is_file()]
     kt_files = [f for f in submission.rglob("*.kt") if f.is_file()]
     return {"java": java_files, "kotlin": kt_files}
 
 
 def main():
-    """Grader entry point"""
+    """Grader entry point."""
     files = find_source_files()
     compile_files(files)
     run_autograder()

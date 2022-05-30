@@ -9,8 +9,11 @@ RUN apt-get update && apt-get -y install ${jdk_version}
 # Install Kotlin compiler
 RUN wget -O /kotlin.zip \
   https://github.com/JetBrains/kotlin/releases/download/v${kotlin_version}/kotlin-compiler-${kotlin_version}.zip
-RUN unzip /kotlin.zip -d /usr/lib/kotlin
-RUN ln -s /usr/lib/kotlin/kotlinc/bin/kotlinc /usr/local/bin/kotlinc
+RUN mkdir -p /usr/lib/kotlin && \
+  ln -s . /usr/lib/kotlin/kotlinc && \
+  unzip -d /usr/lib/kotlin/ /kotlin.zip && \
+  rm /usr/lib/kotlin/kotlinc /kotlin.zip
+RUN ln -s /usr/lib/kotlin/bin/kotlinc /usr/bin/kotlinc
 
 COPY . /autograder/source/
 COPY ./run_autograder /autograder/
