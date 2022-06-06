@@ -1,12 +1,5 @@
-# Git
-.git
-.gitignore
-
-# GitHub Files (workflows, templates, etc.)
-.github
-
 # macOS
 **/.DS_Store
 
 # IDEs
-.idea/
+*.iml

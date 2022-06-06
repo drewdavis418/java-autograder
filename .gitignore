@@ -3,3 +3,7 @@
 
 # IDEs
 .idea/
+*.iml
+
+# Python Virtualenv
+venv/

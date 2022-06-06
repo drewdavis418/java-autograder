@@ -15,8 +15,4 @@ RUN mkdir -p /usr/lib/kotlin && \
   rm /usr/lib/kotlin/kotlinc /kotlin.zip
 RUN ln -s /usr/lib/kotlin/bin/kotlinc /usr/bin/kotlinc
 
-COPY . /autograder/source/
-COPY ./run_autograder /autograder/
-
-# Remove extra autograder script
-RUN rm /autograder/source/run_autograder
+COPY src /
