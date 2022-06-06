@@ -33,9 +33,10 @@ jobs:
         with:
           platforms: linux/amd64
           push: true
-          tags: $GITHUB_REPOSITORY:latest
+          tags: ${{ github.repository }}:latest
 
       - name: Update deployment status
+        if: always()
         uses: bobheadxi/deployments@v1.2.0
         with:
           step: finish
