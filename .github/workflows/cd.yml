@@ -43,5 +43,5 @@ jobs:
           env: production
           status: ${{ job.status }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: https://hub.docker.com/repository/docker/$GITHUB_REPOSITORY/tags
+          env_url: https://hub.docker.com/repository/docker/${{ github.repository }}/tags
           token: ${{ secrets.GITHUB_TOKEN }}
